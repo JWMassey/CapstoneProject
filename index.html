@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPSTONE PROJECT</title>
+    <meta name="description" content="The final project for the JS class">
+    <meta name="author" content="Jack Massey">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 class="centered">DEMO</h1>
+    <!-- Section for deciding which class the player will choose -->
+    <section id="stage">
+    <section id="classSelect">
+        <h2 class="centered">Select Your Class:</h2>
+        <div class="centered">Class cannot be changed later. Subclasses can be chosen later, but also cannot be changed. (Subclasses are not yet implemented into this demo)</div>
+        <div class="centered">
+            <ul>
+                <button class="classButton" id="warrior"> Warrior </button>
+                <li>High HP and Physical stats</li> 
+                <li>Low Speed and Magic stats</li>
+                <li>Subclasses: 
+                    <ul>
+                        <li><b>Duelist</b> - Focuses on high single target damage with powerful single strike moves.</li>
+                        <li><b>Knight</b> - High defenses and HP, made to keep yourself alive. </li>
+                        <li><b>Guardian</b> - High defenses and Taunt effects to make enemies target you over allies.</li>
+                    </ul>
+                </li>
+            </ul>
+            <ul>
+                <button class="classButton" id="ranger"> Ranger </button> 
+                <li>High Speed and Medium Attack stats </li> 
+                <li>Lower HP and Defense stats</li>
+                <li>Subclasses: 
+                    <ul>
+                        <li><b>Marksman</b> - Lands devastating physical blows to quickly defeat a single target. </li>
+                        <li><b>Shadow</b> - Utilizes enchantment and debuffing magic to cripple foes. Status effects are a Shadow's specialty.</li>
+                        <li><b>Beast Tamer</b> - Calls upon beastly companions to assist you in combat. While not the strongest alone, its strength comes from its allies</li>
+                    </ul>
+                </li>
+            </ul>
+            <ul>
+                <button class="classButton" id="mage"> Mage </button> 
+                <li>High Magic and medium Speed stats </li> 
+                <li>Lower HP and Physical stats</li>
+                <li>Subclasses: 
+                    <ul>
+                        <li><b>Purified</b> - A dedicated healer, learning many spells to heal yourself and allies, as well as protection magic.</li>
+                        <li><b>Pestilent</b> - Combination of damage over time and summoning, harnesses necrotic and distortion magic to devastate foes.</li>
+                        <li><b>Warlock</b> - Utilizes a combination of spells of the major elements to fit any role.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </section>
+    </section> <!-- End of "Stage" section -->
+    <section id="credits">
+        <h2 class="centered"> Credits: </h2>
+            <div class="centered"><b>Actually everything:</b> &nbsp;Jack Massey</div>
+            <div class="centered"><b>Special thanks:</b>
+                <ul> 
+                    <li> Mr. Riley, who taught me how to code JavaScript, HTML, and CSS to make this all possible</li> 
+                    <li> All of my friends that supported me while I created the original versions of this game</li>
+                    <li> You, the player, for giving your time to this little project</li>
+            </div>
+        </ul>
+    </section>
+    <script src="app.js"></script>
+</body>
+</html>

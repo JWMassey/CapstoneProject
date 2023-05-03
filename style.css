@@ -1,0 +1,27 @@
+body {
+    background-color: grey;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    border: none;
+    color: #b1b1b1;
+    background-color: black;
+}
+
+#credits {
+    padding: 25px;
+}
+
+#stage {
+    border-style: solid;
+    background-color: #4e4e4e;
+    padding: 35px;
+    height: 90%;
+    width: 95%;
+}
