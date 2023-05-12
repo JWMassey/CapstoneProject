@@ -1682,6 +1682,7 @@ function getQuest(){
                         <p> Mikhail: "No, no, you keep it. After all, I don't really need it anymore. Think I'm finally ready to retire. See ya, kid." </p>
                         <button> Time to head out </button> 
                         `
+                        turQuestCheck++
                         document.querySelector(`button`).addEventListener(`click`, () => {townMenu()})
                     })
                 })
