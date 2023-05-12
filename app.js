@@ -172,6 +172,27 @@ const scarecrow = {
     turn: scarecrowTurn
 }
 
+const verGolem = {
+    name: "Verglas's Golem",
+    type: "Ice",
+    maxHp: 50,
+    hp: 50,
+    maxMp: 10,
+    mp: 10,
+    pAttack: 6,
+    pDefense: 4,
+    mAttack: 3,
+    mDefense: 2,
+    speed: 4,
+    buffs: {
+        pAtk: 0,
+        mAtk: 0,
+        pDef: 0,
+        mDef: 0
+    },
+    turn: verGolemTurn
+}
+
 //Player Inventories//
 //Equipped Gear
 playerInfo.equipped = {
@@ -211,11 +232,57 @@ let tTurnCount = 1
 //Turian//
 let turQuestCheck = 0
 let scarecrowKills = 0
+let gtc = 0
 
 //Info Initializations
 let garyCount = 0;
 let spireGwenCount = 0;
 let glitchGwenCount = 0;
+
+//Level Up//
+function statIncrease(){
+    if (playerInfo.class == `Warrior`){
+        playerInfo.maxHp += Math.floor(Math.random() * 3) + 3
+        playerInfo.maxMp += Math.floor(Math.random() * 2) + 1
+        playerInfo.pAttack += Math.floor(Math.random() * 2) + 3
+        playerInfo.mAttack += Math.floor(Math.random() * 2) + 1
+        playerInfo.pDefense += Math.floor(Math.random() * 3) + 2
+        playerInfo.mDefense += Math.floor(Math.random() * 3) + 1
+        playerInfo.speed += Math.floor(Math.random() * 2) + 1
+    } else if (playerInfo.class == `Ranger`){
+        playerInfo.maxHp += Math.floor(Math.random() * 3) + 2
+        playerInfo.maxMp += Math.floor(Math.random() * 3) + 2
+        playerInfo.pAttack += Math.floor(Math.random() * 2) + 2
+        playerInfo.mAttack += Math.floor(Math.random() * 2) + 2
+        playerInfo.pDefense += Math.floor(Math.random() * 3) + 1
+        playerInfo.mDefense += Math.floor(Math.random() * 3) + 1
+        playerInfo.speed += Math.floor(Math.random() * 2) + 2
+    } else {
+        playerInfo.maxMp += Math.floor(Math.random() * 3) + 3
+        playerInfo.maxHp += Math.floor(Math.random() * 2) + 1
+        playerInfo.mAttack += Math.floor(Math.random() * 2) + 3
+        playerInfo.pAttack += Math.floor(Math.random() * 2) + 1
+        playerInfo.mDefense += Math.floor(Math.random() * 3) + 2
+        playerInfo.pDefense += Math.floor(Math.random() * 3) + 1
+        playerInfo.speed += Math.floor(Math.random() * 2) + 1
+    }
+}
+
+function levelUp(){
+    if (xp >= xpToLevel){
+        level++
+        xp -= xpToLevel
+        if (level <= 10){
+            xpToLevel = 50 + (level * 25)
+        } else if (level <= 20){
+            xpToLevel = 250 + ((level - 10) * 75)
+        } else {
+            xpToLevel = 1000 + ((level - 20) * 150)
+        }
+        alert(`Level Up! You're now at level ${level}!`)
+        statIncrease()
+    }
+}
 
 //Combat and Turns//
 function getEncounter(){
@@ -278,9 +345,16 @@ function combat(baseGold, goldRange, baseXp, xpRange, lootTable){
             if (scarecrowKills == 1){
                 alert(`[Quest: Killed 1 Scarecrow. Go to the Quest Menu to finish the quest]`)
             }
+        } else if (enemyOne.name == `Verglas's Golem`){
+            alert(`[Quest: Defeated Verglas's Golem!]`)
+            turQuestCheck++
         }
-        generateMenu()
+        levelUp()
+    } else {
+        money = Math.floor(money / 2)
+        alert(`You wake up back in town. Sadly, about half of your money is missing.`)
     }
+    generateMenu()
 }
 
 function getDrops(baseGold, goldRange, baseXp, xpRange, lootTable){
@@ -616,6 +690,7 @@ function selectItem(){
                 } else {
                     findItem = false
                     useItem(itemInv[using])
+                    itemInv.splice(using, 1)
                     return 1
                 }
             }
@@ -713,6 +788,108 @@ function scarecrowTurn(){
                 alert(`The scarecrow launches a barrage of sharp straw at you, dealing ${dmg} damage. The numbing cold is the only respite you get from the stinging cuts as your consciousness fades.`)
             }
         }
+    }
+}
+
+function verGolemTurn() {
+    if (enemyOne.hp > 25){
+        enemAction = Math.floor(Math.random() * 6)
+        if (enemAction <= 2){
+            dmgVar = (Math.floor(Math.random() * 3) + 6) / 10
+            let dmg = Math.floor(enemyOne.pAttack * dmgVar) + 2
+            dmg -= (Math.floor((playerInfo.pDefense + playerInfo.equipped.armor.pDefense + playerInfo.buffs.pDef) / 2) + playerInfo.blocking)
+            if (dmg > 0){
+                playerInfo.hp -= dmg
+                if (playerInfo.hp < 1){
+                    alert(`The Golem raises its fist high in the air before bringing it down on you. You take ${dmg} damage, blacking out instantly from the impact.`)
+                } else {
+                    alert(`The Golem punches you. You take ${dmg} damage, leaving you at ${playerInfo.hp} health.`)
+                }
+            } else {
+                alert(`The Golem slams its fist into the ground beside you.`)
+            }
+        } else if (enemAction != 5){
+            let dmg = 0
+            for (i = 0; i < 2; i++){
+                dmgVar = (Math.floor(Math.random() * 4) + 5) / 10
+                dmg += Math.floor(enemyOne.pAttack * dmgVar)
+            }
+            dmg -= (Math.floor((playerInfo.pDefense + playerInfo.equipped.armor.pDefense + playerInfo.buffs.pDef) / 1.25) + playerInfo.blocking)
+            if (dmg > 0){
+                playerInfo.hp -= dmg
+                if (playerInfo.hp < 1){
+                    alert(`The Golem slams its hands together, crushing you between them. You take ${dmg} damage, passing out from the pain.`)
+                } else {
+                    alert(`The Golem smacks you twice. You take ${dmg} damage, leaving you at ${playerInfo.hp} health.`)
+                }
+            } else {
+                alert(`The Golem attempts to hit you, but you dodge.`)
+            }
+        } else {
+            dmgVar = (Math.floor(Math.random() * 5) + 7) / 10
+            let dmg = Math.floor(enemyOne.mAttack * dmgVar) + 3
+            dmg -= (Math.floor((playerInfo.mDefense + playerInfo.equipped.armor.mDefense + playerInfo.buffs.mDef) / 1.5) + playerInfo.blocking)
+            hpLoss = Math.floor(Math.random() * 3) + 3
+            enemyOne.hp -= hpLoss
+            if (dmg > 0){
+                playerInfo.hp -= dmg
+                if (playerInfo.hp < 1){
+                    alert(`The Golem's arm explodes into a hail of splinters. You take ${dmg} damage. The stinging pain of the splinters, along with the blood loss, make you feel light-headed, eventually passing out.`)
+                } else {
+                    alert(`The Golem fires a barage of splinters. You take ${dmg} damage, leaving you at ${playerInfo.hp} health. The Golem takes ${hpLoss} damage, leaving it at ${enemyOne.hp}.`)
+                }
+            } else {
+                alert(`The Golem's arm splinters. It takes ${hpLoss} damage, leaving it at ${enemyOne.hp}.`)
+            }
+        }
+    } else {
+        if (gtc == 0){
+            alert(`The ice on the Golem shatters. Its left arm falls off, crumbling as it lands on the ground. The golem shouts in rage.`)
+        }
+        if (gtc % 3 == 0){
+            dmgVar = (Math.floor(Math.random() * 3) + 4) / 10
+            let dmg = Math.floor(enemyOne.pAttack * dmgVar)
+            dmg -= (Math.floor((playerInfo.pDefense + playerInfo.equipped.armor.pDefense + playerInfo.buffs.pDef)) + playerInfo.blocking)
+            if (dmg > 0){
+                playerInfo.hp -= dmg
+                if (playerInfo.hp < 1){
+                    alert(`The Golem rushes at you, headbutting you. You take ${dmg} damage. You immediately black out.`)
+                } else {
+                    alert(`The Golem runs forward, tackling you with its broken arm. You take ${dmg} damage, leaving you at ${playerInfo.hp} health. Frost begins to swirl around it.`)
+                }
+            } else {
+                alert(`The Golem stands still, snow beginning to swirl around its feet.`)
+            }
+        } else if (gtc % 3 == 1){
+            dmgVar = (Math.floor(Math.random() * 4) + 6) / 10
+            let dmg = Math.floor(enemyOne.pAttack * dmgVar)
+            dmg -= (Math.floor((playerInfo.pDefense + playerInfo.equipped.armor.pDefense + playerInfo.buffs.pDef)) + (playerInfo.blocking * 2))
+            if (dmg > 0){
+                playerInfo.hp -= dmg
+                if (playerInfo.hp < 1){
+                    alert(`The Golem slams its arm down on you, dealing ${dmg} damage. You immediately fall to the ground after such a blow.`)
+                } else {
+                    alert(`The Golem punches with its functional arm. You take ${dmg} damage, leaving you at ${playerInfo.hp} health. Ice is gathering around its stump arm.`)
+                }
+            } else {
+                alert(`The Golem emits a low groan as ice begins to coat the stump of its left arm.`)
+            }
+        } else {
+            dmgVar = (Math.floor(Math.random() * 10) + 15) / 10
+            let dmg = Math.floor(enemyOne.mAttack * dmgVar) + 3
+            dmg -= (Math.floor((playerInfo.mDefense + playerInfo.equipped.armor.mDefense + playerInfo.buffs.mDef) / 2) + (playerInfo.blocking * 5))
+            if (dmg > 0){
+                playerInfo.hp -= dmg
+                if (playerInfo.hp < 1){
+                    alert(`In an instant, the entire room is coated with ice. You weren't strong enough to withstand this blast, frozen in an instant.`)
+                } else {
+                    alert(`The ice on the Golem's arm explodes into a maelstrom of frozen knives, dealing ${dmg} damage, leaving you at ${playerInfo.hp} health. All the ice is gone from its arm.`)
+                }
+            } else {
+                alert(`The warmth of Gwendolyn's Gift keeps you warm as the Golem's icy arm explodes into a blizzard. Its arm is back to being just a simple stump.`)
+            }
+        }
+        gtc++
     }
 }
 
@@ -1143,7 +1320,7 @@ function gearInventory(){
     stage.innerHTML = `
     <h2 class = "centered"> Equipment Inventory </h2>
     <p class = "centered" id = "viewBoard"> In this menu, you can view your current equipment, change equipment, view equipment stats, and learn what "Blessings" can do. </p>
-    <button id="viewCurrent"> View Current Equipment Stats </button> <button id="change"> Change Equipment (Not Implemented) </button> <button id="viewInvStats"> View Inventory </button> <button id="blessings"> Blessings </button> <button id="back"> Back </button> 
+    <button id="viewCurrent"> View Current Equipment Stats </button> <button id="change"> Change Equipment </button> <button id="viewInvStats"> View Inventory </button> <button id="blessings"> Blessings </button> <button id="back"> Back </button> 
     `
     const viewBoard = document.querySelector(`#viewBoard`)
     document.querySelector(`#viewCurrent`).addEventListener(`click`, () => {
@@ -1159,21 +1336,46 @@ function gearInventory(){
           Blessing: ${playerInfo.equipped.weapon.blessing}`
     })
     document.querySelector(`#change`).addEventListener(`click`, () => {
-        alert(`Not implemented currently`)
+        if (gearInv.length == 0){
+            alert(`You don't have any gear to equip.`)
+        } else {
+            let changing = 0
+            while ((changing < 1 || changing > gearInv.length) && changing != -1){
+                changing = prompt(`Enter the [Number] of the item you wish to equip. Enter -1 to quit.`)
+            }
+            if (changing != -1){
+                changing--
+                if (gearInv[changing].type == "Weapon"){
+                    let temp = playerInfo.equipped.weapon
+                    playerInfo.equipped.weapon = gearInv[changing]
+                    gearInv[changing] = temp
+                } else {
+                    let temp = playerInfo.equipped.armor
+                    playerInfo.equipped.armor = gearInv[changing]
+                    gearInv[changing] = temp
+                }
+                alert(`Gear changed successfully`)
+            }
+        }
     })
     document.querySelector(`#viewInvStats`).addEventListener(`click`, () => {
-        let maxPage = Math.ceil(gearInv.length / 5)
-        let page = prompt(`Enter a <page> to view (1 - ${maxPage})`)
-        viewBoard.innerText = ``
-        for (i = 0 + ((page - 1) * 5); i < 5 + ((page - 1) * 5) && i < gearInv.length; i++){
-            viewBoard.innerText += `${(i + 1)}) ${gearInv[i].name}, ${gearInv[i].type}, `
-            if (gearInv[i].type == `Weapon`){
-                viewBoard.innerText += ` P Atk: ${gearInv[i].pDamage}, M Atk: ${gearInv[i].mDamage}` 
-            } else {
-                viewBoard.innerText += ` P Def: ${gearInv[i].pDefense}, M Def: ${gearInv[i].mDefense}` 
+        if (gearInv.length = 0){
+            viewBoard.innerText = `No equipment to view.`
+        } else {
+            let maxPage = Math.ceil(gearInv.length / 5)
+            let page = prompt(`Enter a <page> to view (1 - ${maxPage})`)
+            viewBoard.innerText = ``
+            for (i = 0 + ((page - 1) * 5); i < 5 + ((page - 1) * 5) && i < gearInv.length; i++){
+                viewBoard.innerText += `${(i + 1)}) ${gearInv[i].name}, ${gearInv[i].type}, `
+                if (gearInv[i].type == `Weapon`){
+                    viewBoard.innerText += ` P Atk: ${gearInv[i].pDamage}, M Atk: ${gearInv[i].mDamage}` 
+                } else {
+                    viewBoard.innerText += ` P Def: ${gearInv[i].pDefense}, M Def: ${gearInv[i].mDefense}` 
+                }
+                viewBoard.innerText += ` Blessing: ${gearInv[i].blessing}\n`
             }
-            viewBoard.innerText += ` Blessing: ${gearInv[i].blessing}\n`
         }
+        
     })
     document.querySelector(`#back`).addEventListener(`click`, () => {getInvs()})
 
@@ -1348,8 +1550,250 @@ function getQuest(){
                     
                 })
             }
+        } else if (turQuestCheck == 2) {
+            let strawCheck = 0
+            for (i = 0; i < itemInv.length; i++){
+                if (itemInv[i] == "Sharpened Straw"){
+                    strawCheck++
+                    itemInv.splice(i, 1)
+                    break;
+                }
+            }
+            if (!strawCheck){
+                stage.innerHTML = `
+                <section class = "centered"> 
+                    <h2> Grasping at Straws </h2>
+                    <div>
+                        <p> You haven't found the piece of straw the man waanted. </p>
+                        <button> Go get some straw. </button>
+                    </div>
+                </section>`
+                document.querySelector(`button`).addEventListener(`click`, () => {townMenu()})
+            } else {
+                stage.innerHTML = `
+                <section class = "centered"> 
+                    <h2> Grasping At Straws </h2>
+                    <div id = "request">
+                        <p> You return to the man, carrying a small piece of straw. </p>
+                        <p> ${playerInfo.name}: "I brought the straw." </p>
+                        <p> Man: "Give it here. I did a little research while you were gone. There's this old shack up north of town. Ms. H said she saw someone head in there the other day." </p>
+                        <button> Is he our guy? </button>
+                    </div>
+                </section>`
+                const request = document.querySelector(`#request`)
+                document.querySelector(`button`).addEventListener(`click`, () => {
+                    request.innerHTML = `
+                    <p> ${playerInfo.name}: "Do you think they're the person behind all this?" </p>
+                    <p> Man: "It has to be. But I don't think anyone near here short of Lord Gwendolyn could take him in a fight." </p>
+                    <p> The man sighs, taking a small box out from under his table. </p>
+                    <p> Man: "I believe the time has come for me to use this blessing. Many years ago, Lord Gwendolyn blessed me with a magical artifact to repel frost and keep my crops safe. I believe if you take this to that cabin, you may be able to end this tragedy." </p>
+                    <p> The man holds the box out to you. </p>
+                    <button> Take the Box </p>`
+                    document.querySelector(`button`).addEventListener(`click`, () => {
+                        request.innerHTML = `
+                        <p> You take the box and open it. Inside is a small device, a small ruby embedded in the center. The device is warm to the touch. </p>
+                        <p> Man: "Please, kid. You're Turian's only hope. Go prepare, come back and talk to me when you're ready. This fight's gonna be tough." </p>
+                        <p> [Quest: Find and fight the man responsible for the monsters in Turian] </p>
+                        <button> Go prepare </button>
+                        `
+                        turQuestCheck++
+                        document.querySelector(`button`).addEventListener(`click`, () => {townMenu()})
+                    })
+                })
+            }
+        } else if (turQuestCheck == 3){
+            stage.innerHTML = `
+            <section class = "centered"> 
+                <h2> Reaching the Shed </h2>
+                <div id = "request">
+                    <p> You return to the man, prepared to fight. </p>
+                    <p> Man: "Well, ready? This is gonna be one hell of a fight." </p>
+                    <button id = "ready"> I'm ready </button> <button id="notYet"> I still need to prepare </button>
+                </div>
+            </section>`
+            const request = document.querySelector(`#request`)
+            document.querySelector(`button`).addEventListener(`click`, () => {
+                request.innerHTML = `
+                <p> Man: "You're brave, kid. I'll walk with ya out there, but I'm afraid I won't be much use in a fight." </p>
+                <p> You and the man set out for the little shed to the north. </p>
+                <p> As you approach, the temperature drops significantly. The device he gave you keeps you warm, but you can see the man shivering. </p>
+                <button> We're almost there. </button>
+                `
+                document.querySelector(`button`).addEventListener(`click`, () => {
+                    request.innerHTML = `
+                    <p> ${playerInfo.name}: "We're almost there, I can see the shed up ahead." </p>
+                    <p> Man: "Good. I'm gettin' too old to be walkin' this far." </p>
+                    <p> As you approach the shed, not even Gwendolyn's Gift keeps you safe from the biting cold. It grows harder to walk as the cold numbs your legs. </p>
+                    <p> Eventually, you reach the door. Just inside lies the cause of all of Turian's problems. </p>
+                    <p> Man: Good luck in there, kid. I got high hopes for you. You're gonna do great. </p>
+                    <button> Thank you. </button> <button id = "noLuck"> I don't need luck! </button>
+                    `
+                    document.querySelector(`button`).addEventListener(`click`, () => {
+                        request.innerHTML = `
+                        <p> ${playerInfo.name}: "Thank you" </p>
+                        <p> Man: "You're welcome. Make me proud, kid." </p>
+                        <button> Make him proud </button>`
+                        document.querySelector(`button`).addEventListener(`click`, () => {verglasEncounter()})
+                    })
+                    document.querySelector(`#noLuck`).addEventListener(`click`, () => {
+                        request.innerHTML = `
+                        <p> ${playerInfo.name}: "I don't need luck to beat him!" </p>
+                        <p> Man: Heh, still got that fire in ya, huh? Knock 'em dead, kid. </p>
+                        <button> Knock 'em dead </button>`
+                        document.querySelector(`button`).addEventListener(`click`, () => {verglasEncounter()})
+                    })
+                })
+            })
+
+        } else if (turQuestCheck == 4){
+            stage.innerHTML = `
+            <section class = "centered"> 
+                <h2> Hero of Turian </h2>
+                <div id = "request">
+                    <p> After the Golem's collapse, the biting cold fades. You step outside to tell the old man about your victory. </p>
+                    <p> Outside is warm too, it seems Verglas is gone. </p>
+                    <button> But where is... </button>
+                </div>
+            </section>`
+            const request = document.querySelector(`#request`)
+            document.querySelector(`button`).addEventListener(`click`, () => {
+                request.innerHTML = `
+                <p> You pause for a second, realizing you never learned the man's name. </p>
+                <p> Well, if he's not here, good chance he's back in town. You'll get the chance to learn it then. </p>
+                <p> You begin walking back to town. Notably, you still see scarecrows wandering. Seems like even with Verglas gone, they're still there. </p>
+                <p> Once you get back to town, you look for the man. </p>
+                <button> I never told him my name either. </button>
+                `
+                document.querySelector(`button`).addEventListener(`click`, () => {
+                    request.innerHTML = `
+                    <p> You step into the man's house and see him dozing off in a chair. </p>
+                    <p> ${playerInfo.name}: "Excuse me, sir? You awake?" </p>
+                    <p> The man opens his eyes and sits up. </p>
+                    <p> Man: "Huh? Oh... You're back. You... beat him?" </p>
+                    <p> ${playerInfo.name}: "Well, I got him to go away at least." </p>
+                    <p> Man: "Good work, kid. I'm proud of you." </p>
+                    <button> By the way... </button>
+                    `
+                    document.querySelector(`button`).addEventListener(`click`, () => {
+                        request.innerHTML = `
+                        <p> ${playerInfo.name}: "By the way, my name is ${playerInfo.name}." </p>
+                        <p> Mikhail: "Oh. Mine is Mikhail." </p>
+                        <p> You and Mikhail talk for a while, recounting your encounter with Verglas. As the conversation winds down, you offer Gwendolyn's Gift back to Mikhail, but he refuses. </p>
+                        <p> Mikhail: "No, no, you keep it. After all, I don't really need it anymore. Think I'm finally ready to retire. See ya, kid." </p>
+                        <button> Time to head out </button> 
+                        `
+                        document.querySelector(`button`).addEventListener(`click`, () => {townMenu()})
+                    })
+                })
+            })
         } else {
-            stage.innerHTML = `<h2 class = "centered"> Sorry </h2>
+            thanksForPlaying()
+        }
+    }
+}
+
+function verglasEncounter(){
+    stage.innerHTML = `<section class = "centered">
+        <h2> Facing the Animator </h2>
+        <div id = "request">
+            <p> You step into the shed, and see a man sitting inside. </p>
+            <p> He notices your entry, and turns to face you. Though a mask hides his face, you can feel his chilling gaze. </p>
+            <p> ???: "Hm? A guest? Typically people knock before entering another's space." </p>
+            <p> The door slams shut behind you, the masked man steps forward and extends his hand. </p>
+            <button> Shake it </button> <button id="no"> Back Away </button>
+        </div>
+        </section>`
+        const request = document.querySelector(`#request`)
+        document.querySelector(`button`).addEventListener(`click`, () => {
+            request.innerHTML = `
+            <p> You shake the man's hand. It's shockingly warm for how cold everything around him is. </p>
+            <p> Verglas: "Verglas." </p>
+            <p> ${playerInfo.name}: "I'm ${playerInfo.name}" </p>
+            <p> Verglas: "A pleasure. Since you've shown this courtesy, I suppose I shall allow you one question, since surely you have one."</p>
+            <button> About Scarecrows </button> <button id="whyTurian"> Why Turian? </button> <button id="day"> How was your day? </button>
+            `
+            document.querySelector(`button`).addEventListener(`click`, () => {
+                request.innerHTML = `
+                <p> ${playerInfo.name}: "May I ask why you brought the scarecrows to life?" </p>
+                <p> Verglas: "Two reasons. One, they served to provide privacy. And two, it allows me to get practice. After all, animation is hard work." </p>
+                <p> Verglas snaps, the table in the corner begins to twist and splinter as a thin layer of frost spreads across its surface. </p>
+                <p> Verglas: "It was a pleasure, but I've already spent too long in this pitiful place. </p>
+                <p> With another snap, the room is filled with magical snowfall. You hear the door open and shut, but you can't see through the snow.</p>
+                <button> I have to get out </button>
+                `
+                document.querySelector(`button`).addEventListener(`click`, () => {
+                    alert(`The device the man gave you glows brightly, dispelling the snow. Standing in front of you is a large, wooden golem, coated in ice.`)
+                    enemyOne = verGolem
+                    enemyOne.hp = enemyOne.maxHp
+                    combat(20, 5, 25, 5, "verGolem")
+                })
+            })
+            document.querySelector(`#whyTurian`).addEventListener(`click`, () => {
+                request.innerHTML = `
+                <p> ${playerInfo.name}: "Why attack Turian?" </p>
+                <p> Verglas: "It's not Turian I'm after, it's The Spire. Our Frozen King ordered me to survey The Spire to see if Lord Gwendolyn would make an appearance." </p>
+                <p> Verglas pulls out a small pocket watch and sighs. </p>
+                <p> Verglas: "I have been here for roughly two weeks, yet it's impossible to reach The Spire. The Chimeras are stronger than initially expected. Maybe Pagonia will help." </p>
+                <p> Verglas snaps, causing the table in the corner splinters, contorting into a humanoid form.</p>
+                <p> Verglas: "If you'd excuse me, I simply can't stay any longer. Allow my newest creation to keep you company in my stead." </p>
+                <button> Farewell </button>
+                `
+                document.querySelector(`button`).addEventListener(`click`, () => {
+                    alert(`Verglas leaves, the table finishes its transformation into a wooden golem, covered in ice.`)
+                    enemyOne = verGolem
+                    enemyOne.hp = enemyOne.maxHp
+                    combat(20, 5, 25, 5, "verGolem")
+                })
+            })
+            document.querySelector(`#day`).addEventListener(`click`, () => {
+                request.innerHTML = `
+                <p> ${playerInfo.name}: "How was your day?" </p>
+                <p> Verglas chuckles, the room growing a little warmer. </p>
+                <p> Verglas: "You needn't flatter me with pleasantries any longer, ${playerInfo.name}." </p>
+                <p> ${playerInfo.name}: "Well, I just wanna know." </p>
+                <p> Verglas: "If you must know, it's not going very well. Daniel is behind schedule, and William's delivery has been delayed." </p>
+                <button> I'm sorry </button> <button="coworkers"> Oh, Co-worker troubles </button>
+                `
+                document.querySelector(`button`).addEventListener(`click`, () => {
+                    request.innerHTML = `
+                    <p> ${playerInfo.name}: "I'm sorry to hear that." </p>
+                    <p> Verglas: "It's quite alright. After all, I expected both of those to happen. Sadly, that does mean that I have to go." </p>
+                    <p> ${playerInfo.name}: "Well, I hope your day gets better." </p>
+                    <p> Verglas: "Thank you, allow me to repay this kindness with a parting gift."
+                    <p> He snaps, causing a thin layer of frost to cover the room. The table in the corner begins to rise, crumbling into itself to form a golem. </p>
+                    <p> Verglas: "Farewell. Please keep my Golem company. </p>
+                    <button> Goodbye! I will! </button>
+                    `
+                    document.querySelector(`button`).addEventListener(`click`, () => {
+                        alert(`Verglas leaves, It's time to play with the Golem!`)
+                        enemyOne = verGolem
+                        enemyOne.hp = enemyOne.maxHp
+                        combat(20, 5, 25, 5, "verGolem")
+                    })
+                })
+                document.querySelector(`#coworkers`).addEventListener(`click`, () => {
+                    request.innerHTML = `
+                    <p> ${playerInfo.name}: "Ah, Co-worker problems. I get it." </p>
+                    <p> Verglas laughs quietly. </p>
+                    <p> Verglas: "I must say, you've certainly made my day a bit better, thank you." </p>
+                    <p> ${playerInfo.name}: "Of course!" </p>
+                    <p> Verglas snaps, the table collapses, beginning to rebuild itself into a new form. </p>
+                    <p> Verglas: "Since you're so amiable, I'll make you a new friend since I must go." </p>
+                    <button> Thank you! </button> 
+                    `
+                    document.querySelector(`button`).addEventListener(`click`, () => {
+                        alert(`As the table finishes forming into a golem, and it appears to want to play!`)
+                        enemyOne = verGolem
+                        enemyOne.hp = enemyOne.maxHp
+                        combat(20, 5, 25, 5, "verGolem")
+                    })
+                })
+            })
+        })
+}
+
+function thanksForPlaying(){
+        stage.innerHTML = `<h2 class = "centered"> Sorry </h2>
             <p> You reached the end of the quests for now. I simply ran out of time, but I hope you enjoyed this demo! </p>
             <p>    - Jack, the Creator </p>
             <button id = "did"> I enjoyed it </button> <button id = "not"> I didn't enjoy it </button>`
@@ -1370,7 +1814,4 @@ function getQuest(){
                 <button> Continue Playing </button>`
                 document.querySelector(`button`).addEventListener(`click`, () => {townMenu()})
             })
-
-        }
-    }
 }
